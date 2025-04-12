@@ -69,7 +69,7 @@ export default function AddTransaction() {
     // Load wallet data
     const walletStr = localStorage.getItem('wallet');
     if (walletStr) {
-      const wallet = JSON.parse(walletStr);
+      const wallet = JSON.parse(walletStr) as WalletData;
       setWalletData(wallet);
       
       // Calculate if already over 80%
@@ -134,16 +134,18 @@ export default function AddTransaction() {
     }
     
     // Check if overall budget is over 80%
-    const totalSpent = Object.values(walletData!.categories).reduce(
-      (sum: number, cat: any) => sum + cat.spent, 
-      0
-    );
-    
-    if (totalSpent + amtValue > walletData!.usableAmount * 0.8) {
-      setIsBudgetOver80Percent(true);
-      setShowBufferAlert(true);
-      setIsLoading(false);
-      return;
+    if (walletData) {
+      const totalSpent = Object.values(walletData.categories).reduce(
+        (sum: number, cat: any) => sum + cat.spent, 
+        0
+      );
+      
+      if (totalSpent + amtValue > walletData.usableAmount * 0.8) {
+        setIsBudgetOver80Percent(true);
+        setShowBufferAlert(true);
+        setIsLoading(false);
+        return;
+      }
     }
     
     // Process the transaction
@@ -158,7 +160,7 @@ export default function AddTransaction() {
       const walletStr = localStorage.getItem('wallet');
       if (!walletStr) throw new Error('No wallet data found');
       
-      const wallet = JSON.parse(walletStr);
+      const wallet = JSON.parse(walletStr) as WalletData;
       
       // Create transaction object
       const newTransaction = {
