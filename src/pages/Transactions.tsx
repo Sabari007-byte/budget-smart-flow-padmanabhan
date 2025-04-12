@@ -122,7 +122,7 @@ export default function TransactionsPage() {
                   <SelectValue placeholder="All Categories" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Categories</SelectItem>
+                  <SelectItem value="all-categories">All Categories</SelectItem>
                   <SelectGroup>
                     <SelectLabel>Categories</SelectLabel>
                     {categories.map((category) => (
