@@ -35,13 +35,13 @@ export default function Dashboard() {
     const userStr = localStorage.getItem('user');
     if (userStr) {
       const user = JSON.parse(userStr);
-      setUserName(user.name);
+      setUserName(user.name || 'User');
     }
     
     // Load wallet data
     const walletStr = localStorage.getItem('wallet');
     if (walletStr) {
-      const wallet = JSON.parse(walletStr);
+      const wallet = JSON.parse(walletStr) as WalletData;
       setWalletData(wallet);
       
       // Calculate total spent today
@@ -63,9 +63,9 @@ export default function Dashboard() {
 
   const getBudgetProgressColor = (spent: number, limit: number) => {
     const percentage = (spent / limit) * 100;
-    if (percentage < 50) return "budget-progress-under";
-    if (percentage < 80) return "budget-progress-warning";
-    return "budget-progress-over";
+    if (percentage < 50) return "bg-green-500";
+    if (percentage < 80) return "bg-yellow-500";
+    return "bg-red-500";
   };
 
   const getSpendingPercentage = () => {
@@ -132,8 +132,7 @@ export default function Dashboard() {
                 </div>
                 <Progress 
                   value={getSpendingPercentage()} 
-                  className="budget-progress"
-                  indicatorClassName={getBudgetProgressColor(totalSpentToday, walletData.usableAmount)}
+                  className="h-2"
                 />
               </div>
             </CardContent>
@@ -167,8 +166,7 @@ export default function Dashboard() {
                 </div>
                 <Progress 
                   value={getBufferPercentage()} 
-                  className="budget-progress"
-                  indicatorClassName={getBudgetProgressColor(bufferUsed, walletData.buffer)}
+                  className="h-2"
                 />
               </div>
             </CardContent>
@@ -221,8 +219,7 @@ export default function Dashboard() {
                   </div>
                   <Progress 
                     value={(data.spent / data.limit) * 100} 
-                    className="budget-progress"
-                    indicatorClassName={getBudgetProgressColor(data.spent, data.limit)}
+                    className="h-2"
                   />
                 </CardContent>
               </Card>

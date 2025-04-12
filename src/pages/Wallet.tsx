@@ -33,7 +33,7 @@ export default function WalletPage() {
     // Load wallet data
     const walletStr = localStorage.getItem('wallet');
     if (walletStr) {
-      const wallet = JSON.parse(walletStr);
+      const wallet = JSON.parse(walletStr) as WalletData;
       setWalletData(wallet);
       
       // Calculate total spent today
@@ -91,8 +91,7 @@ export default function WalletPage() {
                 </div>
                 <Progress
                   value={(totalSpentToday / walletData.usableAmount) * 100}
-                  className="mt-2 budget-progress"
-                  indicatorClassName="budget-progress-under"
+                  className="h-2 mt-2"
                 />
               </div>
               
@@ -184,7 +183,7 @@ export default function WalletPage() {
             {recentTransactions.length > 0 ? (
               <div className="space-y-4">
                 {recentTransactions.map((transaction, index) => (
-                  <div key={index} className="transaction-item">
+                  <div key={index} className="flex justify-between items-center p-3 border rounded-md">
                     <div>
                       <p className="font-medium">{transaction.description}</p>
                       <p className="text-sm text-muted-foreground capitalize">{transaction.category}</p>
