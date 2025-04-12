@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Wallet as WalletIcon, Coins, ArrowDown, ArrowUp, BadgePercent, Award, Lock, Unlock } from "lucide-react";
+import { Wallet as WalletIcon, Coins, ArrowDown, ArrowUp, Lock, Unlock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useNavigate } from "react-router-dom";
@@ -24,7 +24,6 @@ interface WalletData {
   transactions: any[];
   savings: number;
   budgetLocked?: boolean;
-  rewards?: number;
 }
 
 export default function WalletPage() {
@@ -33,7 +32,6 @@ export default function WalletPage() {
   const [totalSpentToday, setTotalSpentToday] = useState<number>(0);
   const [recentTransactions, setRecentTransactions] = useState<any[]>([]);
   const [budgetLocked, setBudgetLocked] = useState<boolean>(false);
-  const [rewards, setRewards] = useState<number>(0);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -45,9 +43,6 @@ export default function WalletPage() {
       
       // Set budget lock status
       setBudgetLocked(wallet.budgetLocked || false);
-      
-      // Set rewards
-      setRewards(wallet.rewards || 0);
       
       // Calculate total spent today
       const totalSpent = Object.values(wallet.categories).reduce(
@@ -187,7 +182,7 @@ export default function WalletPage() {
         </Card>
 
         {/* Stats Cards */}
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium">Daily Spending</CardTitle>
@@ -214,21 +209,6 @@ export default function WalletPage() {
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 Total unused funds saved
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Rewards Points</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center">
-                <Award className="mr-2 h-4 w-4 text-amber-500" />
-                <span className="text-2xl font-bold">{rewards || 0}</span>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Earn by staying under budget
               </p>
             </CardContent>
           </Card>

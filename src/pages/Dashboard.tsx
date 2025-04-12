@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Wallet, ArrowDownIcon, ArrowUpIcon, DollarSign, BadgePercent, Award } from "lucide-react";
+import { Wallet, ArrowDownIcon, ArrowUpIcon, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
@@ -22,7 +22,6 @@ interface WalletData {
   transactions: any[];
   savings: number;
   budgetLocked?: boolean;
-  rewards?: number;
 }
 
 export default function Dashboard() {
@@ -31,7 +30,6 @@ export default function Dashboard() {
   const [userName, setUserName] = useState<string>('User');
   const [totalSpentToday, setTotalSpentToday] = useState<number>(0);
   const [bufferUsed, setBufferUsed] = useState<number>(0);
-  const [rewards, setRewards] = useState<number>(0);
   const [isBudgetLocked, setIsBudgetLocked] = useState<boolean>(false);
 
   useEffect(() => {
@@ -50,9 +48,6 @@ export default function Dashboard() {
       
       // Set budget lock status
       setIsBudgetLocked(wallet.budgetLocked || false);
-      
-      // Set rewards
-      setRewards(wallet.rewards || 0);
       
       // Calculate total spent today
       const totalSpent = Object.values(wallet.categories).reduce(
@@ -108,7 +103,7 @@ export default function Dashboard() {
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
           {/* Daily Budget Card */}
           <Card>
             <CardHeader className="pb-2">
@@ -181,33 +176,6 @@ export default function Dashboard() {
               </div>
             </CardContent>
           </Card>
-
-          {/* Rewards Card */}
-          <Card className="bg-gradient-to-r from-violet-50 to-amber-50 border-amber-200">
-            <CardHeader className="pb-2">
-              <div className="flex justify-between items-center">
-                <CardTitle className="text-lg font-medium">Rewards</CardTitle>
-                <Award className="h-5 w-5 text-amber-500" />
-              </div>
-              <CardDescription>Earn by staying under budget</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <BadgePercent className="mr-2 h-4 w-4 text-amber-500" />
-                  <span className="text-2xl font-bold">{rewards}</span>
-                  <span className="text-sm text-muted-foreground ml-2">points</span>
-                </div>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => navigate('/stats')}
-                >
-                  View Details
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
         </div>
 
         {/* Categories Section */}
@@ -239,7 +207,7 @@ export default function Dashboard() {
         </div>
         
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <Button 
             className="w-full justify-start" 
             onClick={() => navigate('/transactions/new')}
@@ -259,6 +227,15 @@ export default function Dashboard() {
           >
             <ArrowDownIcon className="mr-2 h-4 w-4" />
             View Transactions
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            className="w-full justify-start"
+            onClick={() => navigate('/rewards')}
+          >
+            <ArrowDownIcon className="mr-2 h-4 w-4" />
+            Financial Analysis
           </Button>
         </div>
       </div>

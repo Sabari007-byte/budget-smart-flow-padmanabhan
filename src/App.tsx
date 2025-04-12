@@ -15,6 +15,7 @@ import WalletPage from "./pages/Wallet";
 import TransactionsPage from "./pages/Transactions";
 import AddTransaction from "./pages/AddTransaction";
 import ProfilePage from "./pages/Profile";
+import RewardsPage from "./pages/Rewards";
 
 const queryClient = new QueryClient();
 
@@ -32,7 +33,7 @@ const App = () => (
           <Route path="/transactions" element={<TransactionsPage />} />
           <Route path="/transactions/new" element={<AddTransaction />} />
           <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/rewards" element={<Dashboard />} /> {/* Placeholder for now */}
+          <Route path="/rewards" element={<RewardsPage />} />
           <Route path="/stats" element={<Dashboard />} /> {/* Placeholder for now */}
           <Route path="*" element={<NotFound />} />
         </Routes>

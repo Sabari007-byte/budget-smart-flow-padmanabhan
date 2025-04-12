@@ -11,7 +11,7 @@ import {
   User, 
   LogOut,
   PlusSquare,
-  Gift,
+  LineChart,
   Menu,
   X
 } from "lucide-react";
@@ -168,8 +168,8 @@ export default function Sidebar() {
                   className="w-full justify-start"
                   onClick={() => isMobile && setIsOpen(false)}
                 >
-                  <Gift className="mr-2 h-5 w-5" />
-                  Rewards
+                  <LineChart className="mr-2 h-5 w-5" />
+                  Financial Analysis
                 </Button>
               </Link>
               
