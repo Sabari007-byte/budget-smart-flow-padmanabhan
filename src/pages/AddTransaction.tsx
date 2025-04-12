@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from 'uuid';
@@ -66,13 +65,11 @@ export default function AddTransaction() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    // Load wallet data
     const walletStr = localStorage.getItem('wallet');
     if (walletStr) {
       const wallet = JSON.parse(walletStr) as WalletData;
       setWalletData(wallet);
       
-      // Calculate if already over 80%
       const totalSpent = Object.values(wallet.categories).reduce(
         (sum: number, category: any) => sum + category.spent, 
         0
@@ -115,7 +112,6 @@ export default function AddTransaction() {
     
     const amtValue = parseFloat(amount);
     
-    // Validate inputs
     if (!amount || amtValue <= 0 || !category || !description || !recipient) {
       toast({
         variant: "destructive",
@@ -126,14 +122,12 @@ export default function AddTransaction() {
       return;
     }
     
-    // Check if category limit is exceeded
     if (isCategoryOverLimit) {
       setShowBufferAlert(true);
       setIsLoading(false);
       return;
     }
     
-    // Check if overall budget is over 80%
     if (walletData) {
       const totalSpent = Object.values(walletData.categories).reduce(
         (sum: number, cat: any) => sum + cat.spent, 
@@ -148,7 +142,6 @@ export default function AddTransaction() {
       }
     }
     
-    // Process the transaction
     processTransaction();
   };
 
@@ -156,13 +149,11 @@ export default function AddTransaction() {
     const amtValue = parseFloat(amount);
     
     try {
-      // Get current wallet data
       const walletStr = localStorage.getItem('wallet');
       if (!walletStr) throw new Error('No wallet data found');
       
       const wallet = JSON.parse(walletStr) as WalletData;
       
-      // Create transaction object
       const newTransaction = {
         id: uuidv4(),
         amount: amtValue,
@@ -174,22 +165,17 @@ export default function AddTransaction() {
         bufferReason: isAskingForBuffer ? bufferReason : null
       };
       
-      // Update category spent amount
       wallet.categories[category].spent += amtValue;
       
-      // Add transaction to history
       wallet.transactions = [newTransaction, ...(wallet.transactions || [])];
       
-      // Update local storage
       localStorage.setItem('wallet', JSON.stringify(wallet));
       
-      // Show success message
       toast({
         title: "Transaction added",
         description: `$${amtValue.toFixed(2)} has been recorded in your ${category} category.`,
       });
       
-      // Navigate back
       navigate('/transactions');
     } catch (error) {
       toast({
@@ -228,7 +214,7 @@ export default function AddTransaction() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="amount">Amount ($)</Label>
+                <Label htmlFor="amount">Amount (₹)</Label>
                 <Input
                   id="amount"
                   type="number"
@@ -250,7 +236,7 @@ export default function AddTransaction() {
                   <SelectContent>
                     {walletData && Object.keys(walletData.categories).map((cat) => (
                       <SelectItem key={cat} value={cat} className="capitalize">
-                        {cat} (${walletData.categories[cat].spent.toFixed(2)}/${walletData.categories[cat].limit.toFixed(2)})
+                        {cat} (₹{walletData.categories[cat].spent.toFixed(2)}/₹{walletData.categories[cat].limit.toFixed(2)})
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -311,7 +297,6 @@ export default function AddTransaction() {
           </form>
         </Card>
         
-        {/* Alert Dialog for Buffer Request */}
         <AlertDialog open={showBufferAlert} onOpenChange={setShowBufferAlert}>
           <AlertDialogContent>
             <AlertDialogHeader>

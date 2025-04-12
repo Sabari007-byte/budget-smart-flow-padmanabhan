@@ -217,7 +217,7 @@ export default function ProfilePage() {
                     <Label htmlFor="income">Monthly Income</Label>
                     {isEditing ? (
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">₹</span>
                         <Input
                           id="income"
                           type="number"
@@ -227,7 +227,7 @@ export default function ProfilePage() {
                         />
                       </div>
                     ) : (
-                      <p className="text-lg">${financeData.income.toFixed(2)}</p>
+                      <p className="text-lg">₹{financeData.income.toFixed(2)}</p>
                     )}
                   </div>
                   
@@ -235,7 +235,7 @@ export default function ProfilePage() {
                     <Label htmlFor="budget">Monthly Budget</Label>
                     {isEditing ? (
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">₹</span>
                         <Input
                           id="budget"
                           type="number"
@@ -245,7 +245,7 @@ export default function ProfilePage() {
                         />
                       </div>
                     ) : (
-                      <p className="text-lg">${financeData.budgetAmount.toFixed(2)}</p>
+                      <p className="text-lg">₹{financeData.budgetAmount.toFixed(2)}</p>
                     )}
                   </div>
                   
@@ -253,7 +253,7 @@ export default function ProfilePage() {
                     <Label htmlFor="daily">Daily Budget</Label>
                     {isEditing ? (
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">₹</span>
                         <Input
                           id="daily"
                           type="number"
@@ -263,13 +263,13 @@ export default function ProfilePage() {
                         />
                       </div>
                     ) : (
-                      <p className="text-lg">${financeData.dailyBudget?.toFixed(2) || "Not set"}</p>
+                      <p className="text-lg">₹{financeData.dailyBudget?.toFixed(2) || "Not set"}</p>
                     )}
                   </div>
                   
                   <div className="space-y-2">
                     <Label htmlFor="wallet">Current Wallet Balance</Label>
-                    <p className="text-lg">${financeData.walletBalance.toFixed(2)}</p>
+                    <p className="text-lg">₹{financeData.walletBalance.toFixed(2)}</p>
                     <p className="text-xs text-muted-foreground">
                       This is updated automatically based on transactions
                     </p>
