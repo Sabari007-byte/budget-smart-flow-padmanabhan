@@ -70,7 +70,7 @@ export default function TransactionsPage() {
       );
     }
     
-    if (categoryFilter) {
+    if (categoryFilter && categoryFilter !== "all-categories") {
       filtered = filtered.filter((tx) => tx.category === categoryFilter);
     }
     
@@ -79,6 +79,19 @@ export default function TransactionsPage() {
 
   // Get unique categories for the filter dropdown
   const categories = [...new Set(transactions.map((tx) => tx.category))];
+
+  const [walletData, setWalletData] = useState<any>(null);
+
+  useEffect(() => {
+    // Check if budget is locked
+    const walletStr = localStorage.getItem('wallet');
+    if (walletStr) {
+      const wallet = JSON.parse(walletStr);
+      setWalletData(wallet);
+    }
+  }, []);
+  
+  const isBudgetLocked = walletData?.budgetLocked || false;
 
   return (
     <DashboardLayout>
@@ -90,9 +103,15 @@ export default function TransactionsPage() {
               View and manage your spending history
             </p>
           </div>
-          <Button onClick={() => navigate('/transactions/new')}>
+          <Button 
+            onClick={() => navigate('/transactions/new')}
+            disabled={isBudgetLocked}
+          >
             <Plus className="mr-2 h-4 w-4" />
             New Transaction
+            {isBudgetLocked && (
+              <span className="ml-2 text-xs">(Locked)</span>
+            )}
           </Button>
         </div>
 
@@ -154,7 +173,7 @@ export default function TransactionsPage() {
                         <TableCell className="capitalize">{transaction.category}</TableCell>
                         <TableCell>{transaction.recipient}</TableCell>
                         <TableCell className="text-right font-medium text-destructive">
-                          -${transaction.amount.toFixed(2)}
+                          -₹{transaction.amount.toFixed(2)}
                         </TableCell>
                         <TableCell className="text-right text-muted-foreground">
                           {transaction.timestamp}
@@ -167,8 +186,14 @@ export default function TransactionsPage() {
             ) : (
               <div className="text-center py-10">
                 <p className="text-muted-foreground mb-4">No transactions found</p>
-                <Button onClick={() => navigate('/transactions/new')}>
+                <Button 
+                  onClick={() => navigate('/transactions/new')}
+                  disabled={isBudgetLocked}
+                >
                   Add Your First Transaction
+                  {isBudgetLocked && (
+                    <span className="ml-2 text-xs">(Locked)</span>
+                  )}
                 </Button>
               </div>
             )}

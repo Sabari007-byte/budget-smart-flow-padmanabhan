@@ -3,9 +3,11 @@ import { useEffect, useState } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Wallet as WalletIcon, Coins, ArrowDown, ArrowUp, BadgePercent } from "lucide-react";
+import { Wallet as WalletIcon, Coins, ArrowDown, ArrowUp, BadgePercent, Award, Lock, Unlock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 interface Category {
   limit: number;
@@ -21,6 +23,8 @@ interface WalletData {
   };
   transactions: any[];
   savings: number;
+  budgetLocked?: boolean;
+  rewards?: number;
 }
 
 export default function WalletPage() {
@@ -28,6 +32,9 @@ export default function WalletPage() {
   const [walletData, setWalletData] = useState<WalletData | null>(null);
   const [totalSpentToday, setTotalSpentToday] = useState<number>(0);
   const [recentTransactions, setRecentTransactions] = useState<any[]>([]);
+  const [budgetLocked, setBudgetLocked] = useState<boolean>(false);
+  const [rewards, setRewards] = useState<number>(0);
+  const { toast } = useToast();
 
   useEffect(() => {
     // Load wallet data
@@ -35,6 +42,12 @@ export default function WalletPage() {
     if (walletStr) {
       const wallet = JSON.parse(walletStr) as WalletData;
       setWalletData(wallet);
+      
+      // Set budget lock status
+      setBudgetLocked(wallet.budgetLocked || false);
+      
+      // Set rewards
+      setRewards(wallet.rewards || 0);
       
       // Calculate total spent today
       const totalSpent = Object.values(wallet.categories).reduce(
@@ -50,6 +63,29 @@ export default function WalletPage() {
     }
   }, []);
 
+  const toggleBudgetLock = () => {
+    if (!walletData) return;
+    
+    const newLockedStatus = !budgetLocked;
+    setBudgetLocked(newLockedStatus);
+    
+    // Update wallet data in localStorage
+    const updatedWallet = {
+      ...walletData,
+      budgetLocked: newLockedStatus
+    };
+    
+    localStorage.setItem('wallet', JSON.stringify(updatedWallet));
+    
+    // Show toast notification
+    toast({
+      title: newLockedStatus ? "Budget Locked" : "Budget Unlocked",
+      description: newLockedStatus 
+        ? "Your budget is now locked. No new transactions allowed." 
+        : "Your budget is now unlocked. You can add transactions.",
+    });
+  };
+
   if (!walletData) {
     return (
       <DashboardLayout>
@@ -63,11 +99,32 @@ export default function WalletPage() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Wallet</h1>
-          <p className="text-muted-foreground">
-            Manage your daily budget and view your wallet status
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Wallet</h1>
+            <p className="text-muted-foreground">
+              Manage your daily budget and view your wallet status
+            </p>
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className="text-sm font-medium">
+              {budgetLocked ? (
+                <>
+                  <Lock className="inline h-4 w-4 mr-1" />
+                  Locked
+                </>
+              ) : (
+                <>
+                  <Unlock className="inline h-4 w-4 mr-1" />
+                  Unlocked
+                </>
+              )}
+            </span>
+            <Switch 
+              checked={budgetLocked}
+              onCheckedChange={toggleBudgetLock}
+            />
+          </div>
         </div>
 
         {/* Main Wallet Card */}
@@ -84,9 +141,9 @@ export default function WalletPage() {
               <div>
                 <div className="text-sm font-medium text-muted-foreground mb-1">Available (80%)</div>
                 <div className="text-3xl font-bold">
-                  ${(walletData.usableAmount - totalSpentToday).toFixed(2)}
+                  ₹{(walletData.usableAmount - totalSpentToday).toFixed(2)}
                   <span className="text-sm text-muted-foreground ml-2">
-                    of ${walletData.usableAmount.toFixed(2)}
+                    of ₹{walletData.usableAmount.toFixed(2)}
                   </span>
                 </div>
                 <Progress
@@ -98,7 +155,7 @@ export default function WalletPage() {
               <div>
                 <div className="text-sm font-medium text-muted-foreground mb-1">Buffer (20%)</div>
                 <div className="text-3xl font-bold">
-                  ${walletData.buffer.toFixed(2)}
+                  ₹{walletData.buffer.toFixed(2)}
                 </div>
                 <div className="text-sm text-muted-foreground mt-1">
                   Available for emergencies only
@@ -110,9 +167,13 @@ export default function WalletPage() {
               <Button 
                 className="w-full"
                 onClick={() => navigate('/transactions/new')}
+                disabled={budgetLocked}
               >
                 <ArrowUp className="mr-2 h-4 w-4" />
                 Add Transaction
+                {budgetLocked && (
+                  <span className="ml-2 text-xs">(Locked)</span>
+                )}
               </Button>
               <Button 
                 variant="outline" 
@@ -134,7 +195,7 @@ export default function WalletPage() {
             <CardContent>
               <div className="flex items-center">
                 <ArrowDown className="mr-2 h-4 w-4 text-destructive" />
-                <span className="text-2xl font-bold">${totalSpentToday.toFixed(2)}</span>
+                <span className="text-2xl font-bold">₹{totalSpentToday.toFixed(2)}</span>
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 {((totalSpentToday / walletData.usableAmount) * 100).toFixed(0)}% of daily budget used
@@ -149,7 +210,7 @@ export default function WalletPage() {
             <CardContent>
               <div className="flex items-center">
                 <Coins className="mr-2 h-4 w-4 text-yellow-500" />
-                <span className="text-2xl font-bold">${walletData.savings.toFixed(2)}</span>
+                <span className="text-2xl font-bold">₹{walletData.savings.toFixed(2)}</span>
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 Total unused funds saved
@@ -163,8 +224,8 @@ export default function WalletPage() {
             </CardHeader>
             <CardContent>
               <div className="flex items-center">
-                <BadgePercent className="mr-2 h-4 w-4 text-accent" />
-                <span className="text-2xl font-bold">0</span>
+                <Award className="mr-2 h-4 w-4 text-amber-500" />
+                <span className="text-2xl font-bold">{rewards || 0}</span>
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 Earn by staying under budget
@@ -189,7 +250,7 @@ export default function WalletPage() {
                       <p className="text-sm text-muted-foreground capitalize">{transaction.category}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-destructive">-${transaction.amount.toFixed(2)}</p>
+                      <p className="font-bold text-destructive">-₹{transaction.amount.toFixed(2)}</p>
                       <p className="text-xs text-muted-foreground">{transaction.timestamp}</p>
                     </div>
                   </div>
@@ -208,8 +269,12 @@ export default function WalletPage() {
                 <Button 
                   className="mt-2"
                   onClick={() => navigate('/transactions/new')}
+                  disabled={budgetLocked}
                 >
                   Add Your First Transaction
+                  {budgetLocked && (
+                    <span className="ml-2 text-xs">(Locked)</span>
+                  )}
                 </Button>
               </div>
             )}

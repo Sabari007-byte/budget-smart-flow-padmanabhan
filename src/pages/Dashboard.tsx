@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Wallet, ArrowDownIcon, ArrowUpIcon, DollarSign } from "lucide-react";
+import { Wallet, ArrowDownIcon, ArrowUpIcon, DollarSign, BadgePercent, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
@@ -21,6 +21,8 @@ interface WalletData {
   };
   transactions: any[];
   savings: number;
+  budgetLocked?: boolean;
+  rewards?: number;
 }
 
 export default function Dashboard() {
@@ -29,6 +31,8 @@ export default function Dashboard() {
   const [userName, setUserName] = useState<string>('User');
   const [totalSpentToday, setTotalSpentToday] = useState<number>(0);
   const [bufferUsed, setBufferUsed] = useState<number>(0);
+  const [rewards, setRewards] = useState<number>(0);
+  const [isBudgetLocked, setIsBudgetLocked] = useState<boolean>(false);
 
   useEffect(() => {
     // Load user data
@@ -43,6 +47,12 @@ export default function Dashboard() {
     if (walletStr) {
       const wallet = JSON.parse(walletStr) as WalletData;
       setWalletData(wallet);
+      
+      // Set budget lock status
+      setIsBudgetLocked(wallet.budgetLocked || false);
+      
+      // Set rewards
+      setRewards(wallet.rewards || 0);
       
       // Calculate total spent today
       const totalSpent = Object.values(wallet.categories).reduce(
@@ -110,7 +120,7 @@ export default function Dashboard() {
                 <div className="flex items-center">
                   <Wallet className="mr-2 h-4 w-4 text-muted-foreground" />
                   <span className="text-2xl font-bold">
-                    ${walletData.usableAmount.toFixed(2)}
+                    ₹{walletData.usableAmount.toFixed(2)}
                   </span>
                 </div>
                 <Button
@@ -127,7 +137,7 @@ export default function Dashboard() {
                 <div className="flex items-center justify-between text-sm mb-1">
                   <span>Today's Spending</span>
                   <span className="font-medium">
-                    ${totalSpentToday.toFixed(2)} / ${walletData.usableAmount.toFixed(2)}
+                    ₹{totalSpentToday.toFixed(2)} / ₹{walletData.usableAmount.toFixed(2)}
                   </span>
                 </div>
                 <Progress 
@@ -149,11 +159,11 @@ export default function Dashboard() {
                 <div className="flex items-center">
                   <DollarSign className="mr-2 h-4 w-4 text-muted-foreground" />
                   <span className="text-2xl font-bold">
-                    ${(walletData.buffer - bufferUsed).toFixed(2)}
+                    ₹{(walletData.buffer - bufferUsed).toFixed(2)}
                   </span>
                 </div>
                 <span className="text-sm text-muted-foreground">
-                  of ${walletData.buffer.toFixed(2)}
+                  of ₹{walletData.buffer.toFixed(2)}
                 </span>
               </div>
               
@@ -161,7 +171,7 @@ export default function Dashboard() {
                 <div className="flex items-center justify-between text-sm mb-1">
                   <span>Buffer Used</span>
                   <span className="font-medium">
-                    ${bufferUsed.toFixed(2)} / ${walletData.buffer.toFixed(2)}
+                    ₹{bufferUsed.toFixed(2)} / ₹{walletData.buffer.toFixed(2)}
                   </span>
                 </div>
                 <Progress 
@@ -172,29 +182,30 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          {/* Quick Actions Card */}
-          <Card>
+          {/* Rewards Card */}
+          <Card className="bg-gradient-to-r from-violet-50 to-amber-50 border-amber-200">
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg font-medium">Quick Actions</CardTitle>
-              <CardDescription>Manage your finances</CardDescription>
+              <div className="flex justify-between items-center">
+                <CardTitle className="text-lg font-medium">Rewards</CardTitle>
+                <Award className="h-5 w-5 text-amber-500" />
+              </div>
+              <CardDescription>Earn by staying under budget</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-2">
-              <Button 
-                className="w-full justify-start" 
-                onClick={() => navigate('/transactions/new')}
-              >
-                <ArrowUpIcon className="mr-2 h-4 w-4" />
-                Add Transaction
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                className="w-full justify-start"
-                onClick={() => navigate('/transactions')}
-              >
-                <ArrowDownIcon className="mr-2 h-4 w-4" />
-                View Transactions
-              </Button>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <BadgePercent className="mr-2 h-4 w-4 text-amber-500" />
+                  <span className="text-2xl font-bold">{rewards}</span>
+                  <span className="text-sm text-muted-foreground ml-2">points</span>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => navigate('/stats')}
+                >
+                  View Details
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -214,7 +225,7 @@ export default function Dashboard() {
                   <div className="flex items-center justify-between text-sm mb-1">
                     <span>Used</span>
                     <span className="font-medium">
-                      ${data.spent.toFixed(2)} / ${data.limit.toFixed(2)}
+                      ₹{data.spent.toFixed(2)} / ₹{data.limit.toFixed(2)}
                     </span>
                   </div>
                   <Progress 
@@ -225,6 +236,30 @@ export default function Dashboard() {
               </Card>
             ))}
           </div>
+        </div>
+        
+        {/* Quick Actions */}
+        <div className="grid grid-cols-2 gap-4">
+          <Button 
+            className="w-full justify-start" 
+            onClick={() => navigate('/transactions/new')}
+            disabled={isBudgetLocked}
+          >
+            <ArrowUpIcon className="mr-2 h-4 w-4" />
+            Add Transaction
+            {isBudgetLocked && (
+              <span className="ml-2 text-xs">(Budget Locked)</span>
+            )}
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            className="w-full justify-start"
+            onClick={() => navigate('/transactions')}
+          >
+            <ArrowDownIcon className="mr-2 h-4 w-4" />
+            View Transactions
+          </Button>
         </div>
       </div>
     </DashboardLayout>
