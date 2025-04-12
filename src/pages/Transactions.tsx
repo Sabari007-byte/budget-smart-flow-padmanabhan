@@ -29,6 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Plus, Search } from "lucide-react";
+import { CategoryEditor } from "@/components/transactions/CategoryEditor";
 
 interface Transaction {
   id: string;
@@ -103,16 +104,19 @@ export default function TransactionsPage() {
               View and manage your spending history
             </p>
           </div>
-          <Button 
-            onClick={() => navigate('/transactions/new')}
-            disabled={isBudgetLocked}
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            New Transaction
-            {isBudgetLocked && (
-              <span className="ml-2 text-xs">(Locked)</span>
-            )}
-          </Button>
+          <div className="flex space-x-2">
+            <CategoryEditor />
+            <Button 
+              onClick={() => navigate('/transactions/new')}
+              disabled={isBudgetLocked}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              New Transaction
+              {isBudgetLocked && (
+                <span className="ml-2 text-xs">(Locked)</span>
+              )}
+            </Button>
+          </div>
         </div>
 
         <Card>
